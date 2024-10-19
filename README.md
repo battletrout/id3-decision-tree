@@ -1,8 +1,10 @@
 # ID3 Decision Tree Classifier for Car Evaluation
 
-This experiment implements the Iterative Dichotomiser 3 (ID3) decision tree algorithm to create a classifier on the Car Evaluation Database dataset (N=1728). The decision tree is built using Shannon Information Gain as the splitting criteria, and then pruned using reduced-error pruning. The performance of pruned and unpruned decision trees are compared using 5x2 cross-validation, repeated 10 times. The unpruned models slightly outperform the pruned models on cross-validation data, with Mean Classification Errors of 0.099 (SD=0.013) and 0.104 (SD=0.014) respectively. Pruned models show significantly better performance on the pruning dataset (mean error=0.062, SD=0.013) compared to unpruned models (mean error=0.100, SD=0.018). The results suggest that for this relatively small dataset with few features, pruning may not significantly improve generalization, but it does optimize performance on the data used to prune the tree.
+This project implements the Iterative Dichotomiser 3 (ID3) decision tree algorithm to create a classifier on the Car Evaluation Database dataset (N=1728). The decision tree is built using Shannon Information Gain as the splitting criteria, and then pruned using reduced-error pruning. The performance of pruned and unpruned decision trees are compared using 5x2 cross-validation, repeated 10 times. 
 
-The sample dataset is the car evaluation dataset from UC Irvine's Machine Learning Repository
+This is a relatively simple dataset, so over-fitting didn't seem to be an issue. Unpruned trees performed slightly better than pruned trees on my run: Mean Classification Error of  0.099 (SD=0.013) for unpruned trees and 0.104 (SD=0.014) for pruned trees. 
+
+The sample dataset is the car evaluation dataset from UC Irvine's Machine Learning Repository, "originally developed for the demonstration of DEX, M. Bohanec, V. Rajkovic: Expert system for decision making. Sistemica 1(1), pp. 145-157, 1990.)":
 https://archive.ics.uci.edu/dataset/19/car+evaluation
 
 ## Files Description
@@ -56,4 +58,3 @@ The ModelId3Classifier class in model_id3_decision_tree.py implements the ID3 al
 
 Note
 This project uses Windows-style file paths. If you're running on a Unix-based system, you may need to modify the file paths in the Python scripts.
-
