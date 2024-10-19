@@ -22,6 +22,15 @@ class ModelId3Classifier:
     the decision tree structure for debugging purposes.
     """
     def __init__(self, log_enabled: bool = True):
+        """
+        Initialize the ModelId3Classifier.
+
+        Args:
+            log_enabled (bool): Whether to enable logging for this instance.
+
+        Returns:
+            None
+        """
         self.splitifyzer = DataSplitifyzer()
         self.eg_unpruned_tree = {}
         self.eg_pruned_tree = {}
@@ -33,8 +42,15 @@ class ModelId3Classifier:
                  y_pred: Union[np.ndarray, pd.Series], 
                  task: str = 'classification') -> float:
         """
-        EVALUATION FUNCTION
-        Calculate error metric from ground truth and predictions series
+        Calculate error metric from ground truth and predictions series.
+
+        Args:
+            y_true (Union[np.ndarray, pd.Series]): True labels.
+            y_pred (Union[np.ndarray, pd.Series]): Predicted labels.
+            task (str): Type of task (only 'classification' is supported).
+
+        Returns:
+            float: Error rate.
         """
         if task == 'classification':
             y_true = y_true.reset_index(drop=True)
@@ -43,11 +59,16 @@ class ModelId3Classifier:
 
     def calc_entropy(self, data: pd.DataFrame, target_column: str) -> float:
         """
-        HELPER FUNCTION
-
         Calculate Entropy, H(S)
         H(S) = sum(-p_i * log_2 (p_i))
         p_i is the probability (proportion) of class i in this subset of the data.
+       
+        Args:
+            data (pd.DataFrame): Input data.
+            target_column (str): Name of the target column.
+
+        Returns:
+            float: Calculated entropy.
         """
         proportions = data[target_column].value_counts(normalize=True)
         return float(-sum(p * np.log2(p) for p in proportions))
@@ -56,14 +77,18 @@ class ModelId3Classifier:
                                      target_column: str, 
                                      exclude_columns: List[str] = []) -> Tuple[dict, dict]:
         """
-        HELPER FUNCTION
-
-        Take dataframe and calculate info gain of all attribute columns
+        Calculate information gain for all attribute columns.
         Information gain (per attribute)
         Gain(a) = H(S) - sum( (count(S_aj) / count(S) * H(S_aj))
         S_aj are the samples of a given value (j) of an attribute (a)
 
-        Return calculated gains of each attribute, all values for each attribute
+        Args:
+            data (pd.DataFrame): Input data.
+            target_column (str): Name of the target column.
+            exclude_columns (List[str]): Columns to exclude from calculation.
+
+        Returns:
+            Tuple[dict, dict]: Dictionaries of information gains and attribute values.
         """
         col_list = set(data.columns) - set(exclude_columns) - {target_column}
         entropy_S = self.calc_entropy(data, target_column)
@@ -86,8 +111,16 @@ class ModelId3Classifier:
     def add_node(self, parent_node: dict, data: pd.DataFrame, 
                  target_column: str, exclude_columns: List[str] = []) -> None:
         """
-        TREE BUILDING FUNCTION
-        Recursively add nodes to the decision tree
+        Recursively add nodes to the decision tree.
+
+        Args:
+            parent_node (dict): The parent node to add children to.
+            data (pd.DataFrame): Input data for this node.
+            target_column (str): Name of the target column.
+            exclude_columns (List[str]): Columns to exclude from splitting.
+
+        Returns:
+            None
         """
         # Base case: if all samples have the same class (no decision necessary)
         if len(data[target_column].unique()) == 1:
@@ -124,8 +157,15 @@ class ModelId3Classifier:
     def build_tree(self, data: pd.DataFrame, target_column: str, 
                    exclude_columns: List[str] = []) -> dict:
         """
-        TREE BUILDING FUNCTION
-        Build the decision tree using the ID3 algorithm
+        Build the decision tree using the ID3 algorithm.
+
+        Args:
+            data (pd.DataFrame): Input data.
+            target_column (str): Name of the target column.
+            exclude_columns (List[str]): Columns to exclude from the tree.
+
+        Returns:
+            dict: The built decision tree.
         """
         decision_tree = {}
         self.add_node(decision_tree, data, target_column, exclude_columns)
@@ -133,10 +173,15 @@ class ModelId3Classifier:
 
     def predict_sample(self, sample: pd.Series, tree: dict = None) -> str:
         """
-        MODEL EVALUATION FUNCTION
-        Predict the class for a single sample. In edge case where a value wasn't present in training data, return most common class.
-        """
+        Predict the class for a single sample.
 
+        Args:
+            sample (pd.Series): A single sample to predict.
+            tree (dict): The decision tree to use for prediction.
+
+        Returns:
+            str: Predicted class.
+        """
         if 'leaf' in tree:
             return tree['leaf']
 
@@ -154,8 +199,15 @@ class ModelId3Classifier:
 
     def prune_tree(self, node: dict, pruning_data: pd.DataFrame, target_column: str):
         """
-        PRUNING FUNCTION
-        Prune the decision tree using the pruning dataset
+        Prune the decision tree using the pruning dataset.
+
+        Args:
+            node (dict): The current node in the tree.
+            pruning_data (pd.DataFrame): Data used for pruning.
+            target_column (str): Name of the target column.
+
+        Returns:
+            dict: The pruned node.
         """
         if 'leaf' in node:
             return node
@@ -191,25 +243,43 @@ class ModelId3Classifier:
 
     def evaluate_subtree(self, node: dict, data: pd.DataFrame, target_column: str) -> int:
         """
-        PRUNING FUNCTION
-        Evaluate the performance of a subtree on the given data
-        Returns the number of correct predictions
+        Evaluate the performance of a subtree on the given data.
+
+        Args:
+            node (dict): The subtree to evaluate.
+            data (pd.DataFrame): Data to evaluate on.
+            target_column (str): Name of the target column.
+
+        Returns:
+            int: Number of correct predictions.
         """
         predictions = [self.predict_sample(row, node) for _, row in data.iterrows()]
         return sum(predictions == data[target_column])
 
     def evaluate_leaf(self, leaf_value: Union[str, int], data: pd.DataFrame, target_column: str) -> int:
         """
-        PRUNING FUNCTION
-        Evaluate the performance of a leaf node on the given data
-        Returns the number of correct predictions if this node were a leaf
+        Evaluate the performance of a leaf node on the given data.
+
+        Args:
+            leaf_value (Union[str, int]): The value of the leaf node.
+            data (pd.DataFrame): Data to evaluate on.
+            target_column (str): Name of the target column.
+
+        Returns:
+            int: Number of correct predictions if this node were a leaf.
         """
         return sum(data[target_column] == leaf_value)
 
     def run_tree_predictions(self, tree:dict, test_data:pd.DataFrame) -> Union[np.ndarray, pd.Series]:
         """
-        EVALUATION FUNCTION
-        Run the tree
+        Run predictions using the decision tree.
+
+        Args:
+            tree (dict): The decision tree to use.
+            test_data (pd.DataFrame): Data to make predictions on.
+
+        Returns:
+            Union[np.ndarray, pd.Series]: Predicted classes.
         """
         predictions = [self.predict_sample(row,tree) for _, row in test_data.iterrows()]
         return pd.Series(predictions)
@@ -218,19 +288,19 @@ class ModelId3Classifier:
                     standardize_columns: List[str] = [], 
                     exclude_columns: List[str] = []) -> Tuple[List[float], List[float], List[float], List[float]]:
         """
-        Runs full 5x2 cross validation one time
-        Runs the ID3 model on the dataframe, prunes, and evaluates models on each fold and pruning (holdout) data.
+        Run full 5x2 cross validation one time.
 
-        args:
+        Args:
             data (pd.DataFrame): The input data containing features and the target column.
-            target_column: The name of the target column in the dataset.
-            task: The type of task, either 'classification' or 'regression'. Will always be 'classification' for this model.
-            standardize_columns: List of columns to standardize.
-            exclude_columns: List of columns to exclude from the model.
-        Returns:
-            4x List[float]: unpruned_scores, pruned_scores, unpruned_holdout_scores, pruned_holdout_scores.
-        """
+            target_column (str): The name of the target column in the dataset.
+            task (str): The type of task ('classification' for this model).
+            standardize_columns (List[str]): List of columns to standardize.
+            exclude_columns (List[str]): List of columns to exclude from the model.
 
+        Returns:
+            Tuple[List[float], List[float], List[float], List[float]]: 
+                unpruned_scores, pruned_scores, unpruned_holdout_scores, pruned_holdout_scores.
+        """
         # Split data into 5xsplit of 80% for training/cv and 20% for pruning (holdout)
         splits, pruning_data, _ = self.splitifyzer.split_data(data, target_column, cv_type='5x2', 
                                                             stratify=True, 
@@ -311,8 +381,13 @@ class ModelId3Classifier:
 
     def read_pre_cfg(self, file_path: str):
         """
-        HELPER FUNCTION
-        Read the .pre_cfg file and store the inverse ordinal mappings for printing trees
+        Read the .pre_cfg file and store the inverse ordinal mappings for printing trees.
+
+        Args:
+            file_path (str): Path to the .pre_cfg file.
+
+        Returns:
+            None
         """
         with open(file_path, 'r') as f:
             config = json.load(f)
@@ -325,8 +400,14 @@ class ModelId3Classifier:
 
     def print_decision_tree(self, tree:dict=None, indent:str="") -> None:
         """
-        DEBUG FUNCTION
-        Print the decision tree in a readable format, using text values from ordinal mappings
+        Print the decision tree in a readable format.
+
+        Args:
+            tree (dict): The decision tree to print. If None, prints the example unpruned tree.
+            indent (str): The indentation to use for the current level.
+
+        Returns:
+            None
         """
         if tree is None:
             tree = self.eg_unpruned_tree
