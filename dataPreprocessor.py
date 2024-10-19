@@ -34,6 +34,8 @@ class DataPreprocessor:
     def load_data(self, file_path: str, null_question_marks: bool = True) -> pd.DataFrame:
         """
         Data loader to read the .data files. Also deals with ? values.
+        If null_question_marks == True, replace question marks with pd na val.
+        Otherwise, leave them in the data.
         """
         # if we don't have an input for what to replace '?' with, replace with null
         #if replace_question_mark_vals
@@ -53,7 +55,6 @@ class DataPreprocessor:
             data.columns = self.column_names
         debug_log(self.log_enabled, f"Done.")
         return data
-
 
     def impute_missing_values(self, data: pd.DataFrame) -> pd.DataFrame:
         """
@@ -86,7 +87,7 @@ class DataPreprocessor:
 
     def encode_ordinal(self, data: pd.DataFrame) -> pd.DataFrame:
         """
-        Implements a function that encodes ordinal data as integers based on the stored mappings dict.
+        Encodes ordinal data as integers based on the stored mappings dict.
         """
         debug_log(self.log_enabled, f"Encoding ordinal data on {len(self.ordinal_columns)} column(s)...")
         encoded_data = data.copy()
@@ -98,7 +99,7 @@ class DataPreprocessor:
 
     def one_hot_encode(self, data: pd.DataFrame) -> pd.DataFrame:
         """
-        Implements a function that performs one-hot encoding on nominal features.
+        Performs one-hot encoding on nominal features.
         """
         debug_log(self.log_enabled, f"One-hot-encoding on {len(self.nominal_columns)} nominal columns")
         encoded_data = data.copy()
@@ -118,8 +119,6 @@ class DataPreprocessor:
         """
         Implements a function that, given a dataset, discretizes real-valued features into discretized features.
         Options are equal_width, or equal_frequency
-        *****
-        Per 9-19-24 office hours, discretization, if used, should be performed on the entire dataset before splitting
         """
         debug_log(self.log_enabled,f"discretizing {len(columns)} columns, {num_bins} bins, {strategy}...")
         discretized_data = data.copy()
@@ -265,48 +264,25 @@ class DataPreprocessor:
         return data
     
 # ******************************************************************
-# ********** Test Cases for Helper Functions ************
+# ********** Test Case for Cars dataset ************
 # ******************************************************************
 
-def test_abalone():
+def test_car_data():
+    filepath = "car.data"
     preprocessor = DataPreprocessor(True)
-    preprocessor.column_names = [        "Sex",
-        "Length",
-        "Diameter",
-        "Height",
-        "Whole weight",
-        "Shucked weight",
-        "Viscera weight",
-        "Shell weight",
-        "Rings"]
-    preprocessor.predictor_column = "Rings"
-    preprocessor.nominal_columns = ["Sex"]
-    preprocessor.ordinal_columns = []
-    preprocessor.ordinal_mappings = {}
-    preprocessor.discretize_columns = []
-    preprocessor.task = "regression"
+    preprocessor.read_cfg_file("car.pre_cfg")
+    data = preprocessor.load_data(filepath,True)
 
-    data = preprocessor.load_data("datasets\\abalone.data",True)
+    data = preprocessor.encode_ordinal(data)
 
-    data = preprocessor.impute_missing_values(data)
-    data = preprocessor.one_hot_encode(data)
-    data = preprocessor.discretize_features(data,preprocessor.discretize_columns,50)
+    # data = preprocessor.impute_missing_values(data)
+    # data = preprocessor.one_hot_encode(data)
+    # data = preprocessor.discretize_features(data,preprocessor.discretize_columns,50)
+
+    preprocessor.save_preprocessed_data(data,filepath)
     print(data.head())
-    print(data['Length'].dtype)
-    
-    print(data['Length'].dtype)
-    print(data.head())
-    preprocessor.save_preprocessed_data(data,"datasets\\abalone.data")
-    preprocessor.save_current_cfg_file()
 
-    reprocessor = DataPreprocessor(True)
-    reprocessor.read_cfg_file("datasets\\abalone.pre_cfg")
-    data1 = reprocessor.read_preprocessed_data('datasets\\abalone_preprocessed.csv')
-    
-    reprocessor.save_current_cfg_file()
-    print(data1.head())
-
-    print(data['Length'].dtype)
+    print(data['lug_boot'].dtype)
     
 if __name__ == "__main__":
-    test_abalone()
+    test_car_data()
