@@ -14,7 +14,6 @@ https://archive.ics.uci.edu/dataset/19/car+evaluation
   - `car.names`: Description of the dataset
   - `car.pre_cfg`: Configuration file for preprocessing
   - `car_preprocessed.csv`: Preprocessed dataset
-- `.gitignore`: Specifies intentionally untracked files to ignore
 - `dataLogger.py`: Logging utilities for the project
 - `dataPreprocessor.py`: Data preprocessing module
 - `dataSplitifyzer.py`: Module for splitting and stratifying data
