@@ -2,7 +2,6 @@ import logging
 from functools import wraps
 from datetime import datetime
 
-# Configure the logger
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
@@ -42,19 +41,11 @@ def debug_log(log_enabled: bool, log_string: str) -> None:
         print(output_string)
 
 @log_function_call
-def example_function(cat: str, bird: int, mouse: int) -> None:
+def example_function(a: str, b: int, c: int) -> None:
     """
     An example function to demonstrate the usage of the log_function_call decorator.
-
-    Args:
-        cat (str): A string parameter.
-        bird (int): An integer parameter.
-        mouse (int): An integer parameter.
-
-    Returns:
-        None
     """
-    print("This is an example function")
+    debug_log(True,"This is an example function")
 
 if __name__ == "__main__":
     example_function("a", 2, 4)
