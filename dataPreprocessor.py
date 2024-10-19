@@ -14,9 +14,24 @@ from dataLogger import debug_log, log_function_call
 from typing import Union, Tuple, List
 
 class DataPreprocessor:    
+    """
+    A class for preprocessing datasets, particularly for machine learning tasks.
     
-    # @log_function_call
+    This class provides functionality to load, clean, transform, and save data.
+    It includes methods for handling missing values, encoding categorical variables,
+    discretizing continuous features, and managing configuration settings.
+    """
+
     def __init__(self, log_enabled: bool=False):
+        """
+        Initialize the DataPreprocessor.
+
+        Args:
+            log_enabled (bool): Whether to enable logging for this instance.
+
+        Returns:
+            None
+        """
         self.log_enabled = log_enabled
         self.filepath = ""
         self.task = ""
@@ -33,16 +48,18 @@ class DataPreprocessor:
 
     def load_data(self, file_path: str, null_question_marks: bool = True) -> pd.DataFrame:
         """
-        Data loader to read the .data files. Also deals with ? values.
-        If null_question_marks == True, replace question marks with pd na val.
-        Otherwise, leave them in the data.
+        Load data from a CSV file and optionally replace question marks with NaN.
+
+        Args:
+            file_path (str): Path to the CSV file.
+            null_question_marks (bool): If True, replace '?' with NaN.
+
+        Returns:
+            pd.DataFrame: Loaded data as a pandas DataFrame.
         """
-        # if we don't have an input for what to replace '?' with, replace with null
-        #if replace_question_mark_vals
         debug_log(self.log_enabled, f"loading file {file_path}...")
         self.filepath = file_path
-        
-        # if we want to replace question mark values with 
+         
         if null_question_marks:
             na_val = ["?"]
             self.null_question_marks = True
@@ -58,9 +75,16 @@ class DataPreprocessor:
 
     def impute_missing_values(self, data: pd.DataFrame) -> pd.DataFrame:
         """
-        Take a dataframe, impute missing values in categorical, discrete, or continuous columns
+        Impute missing values in the dataset. Replace categorical, discrete, or continuous columns
         with the most common value (mode) of that column or mean if continuous.
+
+        Args:
+            data (pd.DataFrame): Input DataFrame with missing values.
+
+        Returns:
+            pd.DataFrame: DataFrame with imputed values.
         """
+
         debug_log(self.log_enabled, f"imputing missing values...")
         imputed_data = data.copy()
         for column in imputed_data.columns:
@@ -87,7 +111,13 @@ class DataPreprocessor:
 
     def encode_ordinal(self, data: pd.DataFrame) -> pd.DataFrame:
         """
-        Encodes ordinal data as integers based on the stored mappings dict.
+        Encode ordinal data as integers based on stored mappings.
+
+        Args:
+            data (pd.DataFrame): Input DataFrame with ordinal columns.
+
+        Returns:
+            pd.DataFrame: DataFrame with encoded ordinal columns.
         """
         debug_log(self.log_enabled, f"Encoding ordinal data on {len(self.ordinal_columns)} column(s)...")
         encoded_data = data.copy()
@@ -99,7 +129,13 @@ class DataPreprocessor:
 
     def one_hot_encode(self, data: pd.DataFrame) -> pd.DataFrame:
         """
-        Performs one-hot encoding on nominal features.
+        Perform one-hot encoding on nominal features.
+
+        Args:
+            data (pd.DataFrame): Input DataFrame with nominal columns.
+
+        Returns:
+            pd.DataFrame: DataFrame with one-hot encoded nominal columns.
         """
         debug_log(self.log_enabled, f"One-hot-encoding on {len(self.nominal_columns)} nominal columns")
         encoded_data = data.copy()
@@ -117,8 +153,16 @@ class DataPreprocessor:
     def discretize_features(self, data: pd.DataFrame, columns: List[str], 
                             num_bins: int, strategy: str = 'equal_width') -> pd.DataFrame:
         """
-        Implements a function that, given a dataset, discretizes real-valued features into discretized features.
-        Options are equal_width, or equal_frequency
+        Discretize real-valued features into bins.
+
+        Args:
+            data (pd.DataFrame): Input DataFrame.
+            columns (List[str]): List of columns to discretize.
+            num_bins (int): Number of bins to use for discretization.
+            strategy (str): Discretization strategy ('equal_width' or 'equal_frequency').
+
+        Returns:
+            pd.DataFrame: DataFrame with discretized features.
         """
         debug_log(self.log_enabled,f"discretizing {len(columns)} columns, {num_bins} bins, {strategy}...")
         discretized_data = data.copy()
@@ -153,21 +197,24 @@ class DataPreprocessor:
                       discretize_columns:List[str], discretize_bins:int, discretize_scheme:str, 
                       treat_as_int_columns: List[str]) -> None:
         """
-        Saves input configuration options, column names, and column type information to a JSON file.
+        Save configuration options to a JSON file.
 
         Args:
-            dataset_filename (str): The name of the dataset file.
-            null_question_marks: whether we replace ? with np.nan
-            task: regression or categorization.
-            column_names: List of column names for the dataset.
-            predictor_column: str, the predictor column.
-            nominal_columns: List of nominal column names.
-            ordinal_columns: List of ordinal column names.
-            ordinal_mappings: Dictionary of ordinal mappings for each ordinal column.
-            discretize_columns: list of columns to discretize
-            discretize_bins: number of bins to discretize
-            discretize_scheme: whether we're using equal_width or equal_frequency
-            treat_as_int_columns: some columns may need to be forced to behave as ints.
+            dataset_filename (str): Name of the dataset file.
+            task (str): Type of task (e.g., 'regression' or 'classification').
+            null_question_marks (bool): Whether to replace '?' with NaN.
+            column_names (List[str]): List of column names.
+            predictor_column (str): Name of the predictor column.
+            nominal_columns (List[str]): List of nominal column names.
+            ordinal_columns (List[str]): List of ordinal column names.
+            ordinal_mappings (dict[str, dict[str, int]]): Mappings for ordinal columns.
+            discretize_columns (List[str]): Columns to discretize.
+            discretize_bins (int): Number of bins for discretization.
+            discretize_scheme (str): Discretization scheme.
+            treat_as_int_columns (List[str]): Columns to treat as integers.
+
+        Returns:
+            None
         """
         config = {
             "dataset_filename": dataset_filename,
@@ -192,6 +239,15 @@ class DataPreprocessor:
         debug_log(self.log_enabled,f"Configuration saved to {cfg_filename}")
 
     def decode_ordinal_mapping(self,ordinal_map:dict) -> dict:
+        """
+        Decode ordinal mappings, converting string keys to integers where applicable.
+
+        Args:
+            ordinal_map (dict): Dictionary of ordinal mappings.
+
+        Returns:
+            dict: Decoded ordinal mappings.
+        """
         output_dict = {}
         for p_key,p_val in ordinal_map.items():
             child_dict = {}
@@ -204,13 +260,13 @@ class DataPreprocessor:
 
     def read_cfg_file(self, cfg_filename: str) -> dict:
         """
-        Reads the configuration options, column names, and column type information from a JSON file.
+        Read configuration options from a JSON file.
 
         Args:
-            cfg_filename (str): The name of the configuration file.
+            cfg_filename (str): Name of the configuration file.
 
         Returns:
-            dict: A dictionary containing the configuration options and column information.
+            dict: Dictionary containing configuration options.
         """
         with open(cfg_filename, 'r') as f:
             config = json.load(f)
@@ -236,11 +292,14 @@ class DataPreprocessor:
     
     def save_preprocessed_data(self, data: pd.DataFrame, dataset_filename: str) -> None:
         """
-        Saves the pre-processed data to a CSV file, including column names.
+        Save preprocessed data to a CSV file.
 
         Args:
-            data (pd.DataFrame): The pre-processed data to be saved.
-            dataset_filename (str): The original name of the dataset file.
+            data (pd.DataFrame): Preprocessed data to save.
+            dataset_filename (str): Original name of the dataset file.
+
+        Returns:
+            None
         """
         preprocessed_filename = f"{os.path.splitext(dataset_filename)[0]}_preprocessed.csv"
         
@@ -250,13 +309,13 @@ class DataPreprocessor:
 
     def read_preprocessed_data(self, preprocessed_filename: str) -> pd.DataFrame:
         """
-        Reads the pre-processed data from a CSV file, including column names.
+        Read preprocessed data from a CSV file.
 
         Args:
-            preprocessed_filename (str): The name of the pre-processed data file.
+            preprocessed_filename (str): Name of the preprocessed data file.
 
         Returns:
-            pd.DataFrame: A DataFrame containing the pre-processed data.
+            pd.DataFrame: DataFrame containing the preprocessed data.
         """
         data = pd.read_csv(preprocessed_filename)
         
