@@ -1,4 +1,4 @@
-# ID3 Decision Tree Classifier for Car Evaluation
+# ID3 Decision Tree Classifier for UCI Car Evaluation Dataset
 
 This project implements the Iterative Dichotomiser 3 (ID3) decision tree algorithm to create a classifier on the Car Evaluation Database dataset (N=1728). The decision tree is built using Shannon Information Gain as the splitting criteria, and then pruned using reduced-error pruning. The performance of pruned and unpruned decision trees are compared using 5x2 cross-validation, repeated 10 times. 
 
