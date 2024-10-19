@@ -432,10 +432,10 @@ def run_stats():
           "pruned cross-val mean, pruned cross-val stdev, pruned cross-val holdout mean, pruned cross-val holdout stdev")
     for i in range(0,10):
         preprocessor = DataPreprocessor(False)
-        data = preprocessor.read_preprocessed_data("car_preprocessed.csv")
+        data = preprocessor.read_preprocessed_data("data\\car_preprocessed.csv")
 
         model = ModelId3Classifier(log_enabled=False)
-        model.read_pre_cfg("car.pre_cfg")
+        model.read_pre_cfg("data\\car.pre_cfg")
         
         unpruned_scores, pruned_scores, unpruned_holdout_scores, pruned_holdout_scores = model.run_id3_model(data, 'class', 'classification')
         all_unpruned_scores.extend(unpruned_scores)
@@ -462,10 +462,10 @@ def run_once_example():
     """
 
     preprocessor = DataPreprocessor(True)
-    data = preprocessor.read_preprocessed_data("car_preprocessed.csv")
+    data = preprocessor.read_preprocessed_data("data\\car_preprocessed.csv")
 
     model = ModelId3Classifier()
-    model.read_pre_cfg("car.pre_cfg")
+    model.read_pre_cfg("data\\car.pre_cfg")
     
     unpruned_scores, pruned_scores, unpruned_holdout_scores, pruned_holdout_scores = model.run_id3_model(data, 'class', 'classification')
  
@@ -479,5 +479,5 @@ def run_once_example():
     model.print_decision_tree(model.eg_pruned_tree)
 
 if __name__ == "__main__":
-    # run_once()
+    # run_once_example()
     run_stats()
