@@ -6,17 +6,35 @@ from sklearn.model_selection import KFold
 
 class DataSplitifyzer:
     """
-    Split, Stratify, Standardize the data. Remove unwanted columns at runtime. Called by model functions on init.
-    Data should already be pre-processed into a .csv file with headers that can be read by pandas.
+    A class for splitting, stratifying, and standardizing data for machine learning tasks.
+    
+    This class provides functionality to prepare data for cross-validation, including
+    methods for downcasting data types, standardizing features, and splitting data
+    into training and testing sets. It's designed to work with preprocessed data
+    in CSV format that can be read by pandas.
     """
     def __init__(self, log_enabled:bool = False):
+        """
+        Initialize the DataSplitifyzer.
+
+        Args:
+            log_enabled (bool): Whether to enable logging for this instance.
+
+        Returns:
+            None
+        """
         self.standardize_mappings = []
         self.log_enabled = log_enabled
 
     def downcast_data(self,data: pd.DataFrame) -> pd.DataFrame:
         """
-        Downcast int and float values to smaller values where possible
+        Downcast int and float values to smaller data types where possible.
         e.g. float64 -> float32, int64 -> int16
+        Args:
+            data (pd.DataFrame): Input DataFrame to downcast.
+
+        Returns:
+            pd.DataFrame: DataFrame with downcasted data types.
         """
         
         if self.log_enabled:
@@ -36,11 +54,15 @@ class DataSplitifyzer:
 
     def standardize(self, train_data: pd.DataFrame, test_data: pd.DataFrame, standardize_columns: List[str]) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """
-        Given a training and test set, performs z-score standardization.
-        Args
-            train data and test dataframes
-        returns
-            standardized data and dataframes
+        Perform z-score standardization on specified columns of training and test data.
+
+        Args:
+            train_data (pd.DataFrame): Training data to standardize.
+            test_data (pd.DataFrame): Test data to standardize.
+            standardize_columns (List[str]): List of column names to standardize.
+
+        Returns:
+            Tuple[pd.DataFrame, pd.DataFrame]: Standardized training and test data.
         """
         standardization_map = {}
         for column in standardize_columns:
@@ -54,6 +76,17 @@ class DataSplitifyzer:
         return train_data, test_data
 
     def standardize_from_mappings(self, validation_data: pd.DataFrame, standardize_columns: List[str], standardize_mappings:dict) -> pd.DataFrame:
+        """
+        Standardize validation data using pre-computed standardization mappings.
+
+        Args:
+            validation_data (pd.DataFrame): Validation data to standardize.
+            standardize_columns (List[str]): List of column names to standardize.
+            standardize_mappings (dict): Dictionary containing standardization parameters.
+
+        Returns:
+            pd.DataFrame: Standardized validation data.
+        """    
         for column in standardize_columns:
             train_mean = standardize_mappings[column]['mean']
             train_std = standardize_mappings[column]['std']        
@@ -65,8 +98,22 @@ class DataSplitifyzer:
                    standardize_columns: List[str] = [],
                    exclude_columns: List[str] = [], downcast: bool = True) -> Tuple[List[pd.DataFrame], pd.DataFrame, List[dict]]:
         """
-        Implements a function that, given a dataset, partitions the data for cross-validation.
-        Also calls standardization, stratification, and drops excluded columns
+        Split the data for cross-validation, applying standardization, stratification, and column exclusion as specified.
+
+        Args:
+            data (pd.DataFrame): Input data to split.
+            target_column (str): Name of the target column.
+            cv_type (str): Type of cross-validation ('5x2' or '10-fold').
+            stratify (bool): Whether to stratify the data.
+            standardize_columns (List[str]): Columns to standardize.
+            exclude_columns (List[str]): Columns to exclude from the data.
+            downcast (bool): Whether to downcast data types.
+
+        Returns:
+            Tuple[List[pd.DataFrame], pd.DataFrame, List[dict]]: 
+                - List of DataFrames for cross-validation splits
+                - Test data DataFrame
+                - List of standardization mappings
         """
         #drop excluded columns
         if exclude_columns != []:
