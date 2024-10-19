@@ -7,31 +7,53 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 def log_function_call(func):
+    """
+    A decorator that logs the function call with its name.
+
+    Args:
+        func (callable): The function to be decorated.
+
+    Returns:
+        callable: The wrapped function that logs its call before execution.
+    """
     @wraps(func)
     def wrapper(*args, **kwargs):
         function_name = func.__name__
-        #current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         logger.info(f"Function '{function_name}' called")
         return func(*args, **kwargs)
     return wrapper
 
-def debug_log(log_enabled,log_string:str):
-    '''
-    DEBUG FUNCTION
-    Output formatted log entries to stdout if "enable_log" is true
-    '''
+def debug_log(log_enabled: bool, log_string: str) -> None:
+    """
+    Output formatted log entries to stdout if logging is enabled.
+
+    Args:
+        log_enabled (bool): Whether logging is enabled.
+        log_string (str): The message to be logged.
+
+    Returns:
+        None
+    """
     if not log_enabled:
-        exit
+        return
     else:
-        output_string = ""
         datetime_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         output_string = f"{datetime_str:>15}: {log_string}"
         print(output_string)
-    # return log_string
 
-# Example usage
 @log_function_call
-def example_function(cat, bird, mouse):
+def example_function(cat: str, bird: int, mouse: int) -> None:
+    """
+    An example function to demonstrate the usage of the log_function_call decorator.
+
+    Args:
+        cat (str): A string parameter.
+        bird (int): An integer parameter.
+        mouse (int): An integer parameter.
+
+    Returns:
+        None
+    """
     print("This is an example function")
 
 if __name__ == "__main__":
