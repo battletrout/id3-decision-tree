@@ -1,17 +1,13 @@
-import numpy as np
 import pandas as pd
-import json
-import os
-from dataLogger import debug_log, log_function_call
-from typing import Union, Tuple, List
-from dataPreprocessor import DataPreprocessor
-# Only import these for splitting up the test and training sets
+from dataLogger import debug_log
+from typing import Tuple, List
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import KFold
 
 class DataSplitifyzer:
     """
-    Split, Stratify, Standardize the data. Remove unwanted columns at runtime. Called by models.
+    Split, Stratify, Standardize the data. Remove unwanted columns at runtime. Called by model functions on init.
+    Data should already be pre-processed into a .csv file with headers that can be read by pandas.
     """
     def __init__(self, log_enabled:bool = False):
         self.standardize_mappings = []
@@ -102,77 +98,3 @@ class DataSplitifyzer:
                 split = self.standardize(split[0],split[1],standardize_columns)
             return splits, test, self.standardize_mappings
         
-
-def validate_stratification():
-    """
-    DEBUG FUNCTION
-    Validate stratification by printing the number of each class that are in the "class" column.
-    Should be roughly the same proportion between training sets, and for the validation set (though this one is 1/2 size)
-    """
-    preprocessor = DataPreprocessor(True)
-    data = preprocessor.read_preprocessed_data("datasets\\car_preprocessed.csv")
-
-    splitifyzer = DataSplitifyzer()
-    test_train_data, validation_data = splitifyzer.split_data(data,"class")
-
-    for set in test_train_data:
-        print(set["class"].value_counts())
-        print(set["class"].count())
-        print()
-    
-    print(validation_data["class"].value_counts())
-    print(validation_data["class"].count())
-
-def validate_standardization():
-    """
-    DEBUG FUNCTION
-    Validate standardization by standardizing some of the breast cancer data fields and printing them.
-    Means should be close to 0.
-    """
-    preprocessor = DataPreprocessor(True)
-    data = preprocessor.read_preprocessed_data("datasets\\breast-cancer-wisconsin_preprocessed.csv")
-
-    splitifyzer = DataSplitifyzer()
-    test_train_data, validation_data = splitifyzer.split_data(data,"Class",standardize_columns=[
-        "Marginal Adhesion",
-        "Single Epithelial Cell Size",
-        "Bland Chromatin",
-        "Bare Nuclei",
-        "Normal Nucleoli",
-        "Mitoses"])
-
-    for set in test_train_data:
-        print(set["Class"].value_counts())
-        mean = set["Marginal Adhesion"].mean()
-        print(f"Average val of Marginal Adhesion: {mean}")
-        mean = set["Bland Chromatin"].mean()
-        print(f"Average val of Marginal Adhesion: {mean}")
-        print(set.head())
-        print()
-    
-    # print(validation_data["class"].value_counts())
-    # print(validation_data["class"].count())
-
-def validate_exclude():
-    """
-    DEBUG FUNCTION
-    Validate exclude by picking a few columns to exclude.
-    """
-    preprocessor = DataPreprocessor(True)
-    data = preprocessor.read_preprocessed_data("datasets\\machine_preprocessed.csv")
-
-    splitifyzer = DataSplitifyzer()
-    print(data.head())
-    test_train_data, validation_data = splitifyzer.split_data(data,"PRP",exclude_columns=[
-        "vendor name", 
-        "model name",
-        "ERP"])
-
-    for set in test_train_data:
-        print(set.head())
-        print()
-
-if __name__ == "__main__":
-    #validate_stratification()
-    #validate_standardization()
-    validate_exclude()
