@@ -335,8 +335,8 @@ def run_stats():
     RUN ME to run 5x2 validation 10 times, output the mean and stdev of each, and output aggregate mean and stdev
     """
     all_unpruned_scores, all_pruned_scores, all_unpruned_holdout_scores, all_pruned_holdout_scores = [],[],[],[]
-    print("Unpruned Error rate                 | Pruned Error rate")
-    print("Cross-val m, stdev        Holdout m, stdev         | Cross-val m, stdev       Holdout m, stdev")
+    print("unpruned cross-val mean, unpruned cross-val stdev, unpruned holdout mean,  unpruned holdout stdev,", 
+          "pruned cross-val mean, pruned cross-val stdev, pruned cross-val holdout mean, pruned cross-val holdout stdev")
     for i in range(0,10):
         preprocessor = DataPreprocessor(False)
         data = preprocessor.read_preprocessed_data("car_preprocessed.csv")
@@ -388,5 +388,4 @@ def run_once():
 if __name__ == "__main__":
     run_once()
     # main()
-    # scores, holdout_scores = validate_id3_model(11)
-    # print(f"scores mean: {np.mean(scores)}; holdout scores mean: {np.mean(holdout_scores)}\n")
+    run_stats()
