@@ -8,7 +8,19 @@ from dataSplitifyzer import DataSplitifyzer
 from dataPreprocessor import DataPreprocessor
 
 class ModelId3Classifier:
-
+    """
+    A class implementing the ID3 (Iterative Dichotomiser 3) decision tree algorithm for classification.
+    
+    This class builds, prunes, and evaluates decision trees using the ID3 algorithm. It includes methods for:
+    - Calculating entropy and information gain
+    - Building and pruning decision trees
+    - Making predictions using the decision trees
+    - Evaluating model performance using cross-validation
+    - Running a full 5x2 cross-validation process
+    
+    The class also provides functionality for handling ordinal data mappings and printing 
+    the decision tree structure for debugging purposes.
+    """
     def __init__(self, log_enabled: bool = True):
         self.splitifyzer = DataSplitifyzer()
         self.eg_unpruned_tree = {}
@@ -206,7 +218,7 @@ class ModelId3Classifier:
                     standardize_columns: List[str] = [], 
                     exclude_columns: List[str] = []) -> Tuple[List[float], List[float], List[float], List[float]]:
         """
-        RUN ME to run the 5x2 cross validation one time
+        Runs full 5x2 cross validation one time
         Runs the ID3 model on the dataframe, prunes, and evaluates models on each fold and pruning (holdout) data.
 
         args:
@@ -335,7 +347,7 @@ def run_stats():
     RUN ME to run 5x2 validation 10 times, output the mean and stdev of each, and output aggregate mean and stdev
     """
     all_unpruned_scores, all_pruned_scores, all_unpruned_holdout_scores, all_pruned_holdout_scores = [],[],[],[]
-    print("unpruned cross-val mean, unpruned cross-val stdev, unpruned holdout mean,  unpruned holdout stdev,", 
+    print("unpruned cross-val mean, unpruned cross-val stdev, unpruned holdout mean, unpruned holdout stdev,", 
           "pruned cross-val mean, pruned cross-val stdev, pruned cross-val holdout mean, pruned cross-val holdout stdev")
     for i in range(0,10):
         preprocessor = DataPreprocessor(False)
@@ -363,7 +375,7 @@ def run_stats():
     print(f"pruned holdout error rate: {np.mean(all_pruned_holdout_scores):.4f}, stdev= {np.std(all_pruned_holdout_scores):.4f}, n(scores) = {len(all_pruned_holdout_scores)}")
 
 
-def run_once():
+def run_once_example():
     """
     RUN ME to run the ID3 model with 5x2 cross-validation once, and output a sample decision tree
     """
@@ -386,6 +398,5 @@ def run_once():
     model.print_decision_tree(model.eg_pruned_tree)
 
 if __name__ == "__main__":
-    run_once()
-    # main()
+    # run_once()
     run_stats()
