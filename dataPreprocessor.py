@@ -1,17 +1,8 @@
-'''
-created by NMK (Battletrout) on 20 Sep 2024
-JHU EP EN.605.649
-
-Implements most requirements of Project 1 Part 1, the remaining requirements are in
-DataSplitifyzer and ModelNull.
-'''
-
-import numpy as np
 import pandas as pd
 import json
 import os
-from dataLogger import debug_log, log_function_call
-from typing import Union, Tuple, List
+from dataLogger import debug_log
+from typing import List
 
 class DataPreprocessor:    
     """
@@ -327,9 +318,9 @@ class DataPreprocessor:
 # ******************************************************************
 
 def test_car_data():
-    filepath = "car.data"
+    filepath = "data\\car.data"
     preprocessor = DataPreprocessor(True)
-    preprocessor.read_cfg_file("car.pre_cfg")
+    preprocessor.read_cfg_file("data\\car.pre_cfg")
     data = preprocessor.load_data(filepath,True)
 
     data = preprocessor.encode_ordinal(data)
