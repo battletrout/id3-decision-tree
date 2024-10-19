@@ -24,15 +24,19 @@ https://archive.ics.uci.edu/dataset/19/car+evaluation
 
 1. Clone the repository
 2. Install the required packages:
+```
 pip install -r requirements.txt
-
+```
 ## Usage
 
 To run the ID3 model on the car evaluation dataset:
 
-```python
+```
 python model_id3_decision_tree.py
+```
 This will perform 5x2 cross-validation, build both pruned and unpruned decision trees, and output the results.
+
+```
 Data Preprocessing
 The DataPreprocessor class in dataPreprocessor.py handles initial data preprocessing, including:
 
@@ -54,6 +58,6 @@ The ModelId3Classifier class in model_id3_decision_tree.py implements the ID3 al
   Pruning the tree
   Making predictions
   Evaluating model performance
-
+```
 Note
 This project uses Windows-style file paths. If you're running on a Unix-based system, you may need to modify the file paths in the Python scripts.
